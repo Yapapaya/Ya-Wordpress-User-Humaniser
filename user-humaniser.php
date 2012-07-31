@@ -23,9 +23,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
+$human_content_structure= array(
+    'people_taxonomy'    => array('People','Person'),
+    'group_taxonomy'     => array('Groups','Group'),
+    'people_profile'     => array('Profiles','Profile'),
+    'people_activity'    => array('Activities','Activity')
+);
+
 class user_humaniser{
     
-
+    var $content_structure=array();
     
     
     function __construct(){
@@ -35,10 +42,13 @@ class user_humaniser{
     function user_humaniser(){
         $this->__construct();
     }
+    
     function human_setup_init(){
-        $people_taxonomy    =   array('People','Person');
-        $group_taxonomy     =   array('Groups','Group');
-        $people_post        =   array('Profiles','Profile');
+        global $human_content_structure;
+        $people_taxonomy    =   $human_content_structure['people_taxonomy'];
+        $group_taxonomy     =   $human_content_structure['group_taxonomy'];
+        $people_profile     =   $human_content_structure['people_profile'];
+        $people_activity    =   $human_content_structure['people_activity'];
         $post_types=get_post_types();
         //global $wp_rewrite;
         
@@ -60,12 +70,23 @@ class user_humaniser{
         );
         define('EP_PROFILE', 1048576); //2^20
         register_post_type(
-            strtolower($people_post[0]),
+            strtolower($people_profile[0]),
             array(
-                'labels'        => array('name'=>$people_post[0],'singular_name'=>$people_post[1]),
+                'labels'        => array('name'=>$people_profile[0],'singular_name'=>$people_profile[1]),
                 'public'        => true,
                 'supports'      => array('title','thumbnail'),
-                'taxonomies'    => array(strtolower($group_taxonomy[0]),strtolower($people_taxonomy[0])),
+                'taxonomies'    => array(strtolower($group_taxonomy[0]),strtolower($people_taxonomy[0]))
+                //'rewrite'       => array('ep_mask'=>EP_PROFILE),
+                //'query_var'     => true
+            )
+        );
+        register_post_type(
+            strtolower($people_activity[0]),
+            array(
+                'labels'        => array('name'=>$people_activity[0],'singular_name'=>$people_activity[1]),
+                'public'        => true,
+                'supports'      => array('title','thumbnail'),
+                'taxonomies'    => array(strtolower($group_taxonomy[0]),strtolower($people_taxonomy[0]))
                 //'rewrite'       => array('ep_mask'=>EP_PROFILE),
                 //'query_var'     => true
             )
@@ -98,13 +119,14 @@ class user_humaniser{
 global $user_humaniser;
 $user_humaniser = new user_humaniser();
 register_activation_hook(__FILE__,array('user_humaniser','user_to_people'));
-/**
-add_action('activated_plugin','save_error');
+
+/**add_action('activated_plugin','save_error');
 function save_error(){
-    
+    delete_option('plugin_error');
     update_option('plugin_error',  ob_get_contents());
 }
 echo get_option('plugin_error');
- *  * 
+ * 
  */
+ 
 ?>
